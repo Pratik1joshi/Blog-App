@@ -2,16 +2,23 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');
 const uploadRoutes = require('./routes/upload');
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 const app = express();
 const port = 5000;
 
 // CORS configuration - must be before other middleware
 app.use(cors({
-  origin: 'http://localhost:5174',
+  origin: 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -33,6 +40,7 @@ app.use((req, res, next) => {
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+console.log('Serving uploads from:', path.join(__dirname, 'uploads')); // Debug log
 
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
